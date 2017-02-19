@@ -8,8 +8,6 @@ Author: David Gallinat
 Author URI: https://github.com/plaidmelon
 */
 
-/* INSTALL CONSTELLATION DATABASE TABLE */
-
 
 /* CREATE ASTROJOURNAL POST TYPE */
 function astrojournal_setup_post_type() {
@@ -100,6 +98,8 @@ function build_astrojournal_taxonomies() {
 		);
 		
 	/* Constellations */
+	/* I'm going to handle this section differently, see code at bottom of file */
+	/*
 	register_taxonomy(
 		'constellations',
 		array(
@@ -120,9 +120,10 @@ function build_astrojournal_taxonomies() {
 							),
 			'show_ui' => true,
 			'query_var' => true,
-			'rewrite' => array('slug' => 'constellations'),
+			'rewrite' => array('slug' => 'constellation'),
 			)
 		);
+	*/
 		
 	/* Conditions */
 	register_taxonomy(
@@ -177,3 +178,113 @@ function build_astrojournal_taxonomies() {
 }
 
 add_action('init', 'build_astrojournal_taxonomies', 0);
+
+
+/************************************ 
+* INSERT CONSTELLATIONS INTO TAXONOMY
+*
+* Future versions will likely do this differently, but
+* I'm being lazy here and just creating a custom meta box.
+* I should create a custom category of constellations.
+* 
+* This takes a little more to create
+* the list of constellations.
+* I should probably move this to a seperate file.
+*
+*************************************/
+
+
+
+/* Constellation list */
+/*
+$constellation_list = array (
+	'Andromeda',
+	'Antlia',
+	'Apus',
+	'Aquarius',
+	'Aquila',
+	'Ara',
+	'Aries',
+	'Auriga',
+	'Boötes',
+	'Caelum',
+	'Camelopardalis',
+	'Cancer',
+	'Canes Venatici',
+	'Canis Major',
+	'Canis Minor',
+	'Capricornus',
+	'Carina',
+	'Cassiopeia',
+	'Centaurus',
+	'Cepheus',
+	'Cetus',
+	'Chamaeleon',
+	'Circinus',
+	'Columba',
+	'Coma Berenices',
+	'Corona Austrina',
+	'Corona Borealis',
+	'Corvus',
+	'Crater',
+	'Crux',
+	'Cygnus',
+	'Delphinus',
+	'Dorado',
+	'Draco',
+	'Equuleus',
+	'Eridanus',
+	'Fornax',
+	'Gemini',
+	'Grus',
+	'Hercules',
+	'Horologium',
+	'Hydra',
+	'Hydrus',
+	'Indus',
+	'Lacerta',
+	'Leo',
+	'Leo Minor',
+	'Lepus',
+	'Libra',
+	'Lupus',
+	'Lynx',
+	'Lyra',
+	'Mensa',
+	'Microscopium',
+	'Monoceros',
+	'Musca',
+	'Norma',
+	'Octans',
+	'Ophiuchus',
+	'Orion',
+	'Pavo',
+	'Pegasus',
+	'Perseus',
+	'Phoenix',
+	'Pictor',
+	'Pisces',
+	'Piscis Austrinus',
+	'Puppis',
+	'Pyxis',
+	'Reticulum',
+	'Sagitta',
+	'Sagittarius',
+	'Scorpius',
+	'Sculptor',
+	'Scutum',
+	'Serpens',
+	'Sextans',
+	'Taurus',
+	'Telescopium',
+	'Triangulum',
+	'Triangulum Australe',
+	'Tucana',
+	'Ursa Major',
+	'Ursa Minor',
+	'Vela',
+	'Virgo',
+	'Volans',
+	'Vulpecula'
+);
+*/
