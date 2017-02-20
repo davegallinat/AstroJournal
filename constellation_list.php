@@ -6,7 +6,7 @@
 *
 * Compiled by Dave Gallinat (https://github.com/plaidmelon)
 * for use with AstroJournal (https://github.com/plaidmelon/AstroJournal/)
-* Most recent version can be found at above repo.
+* Most recent version can be found at above repository.
 */
 	
 $constellation_list = array (
