@@ -3,7 +3,7 @@
 Plugin Name: AstroJournal
 Plugin URL: https://github.com/plaidmelon/AstroJournal
 Description: Plugin for keeping an astronomy observation journal.
-Version: 1.0
+Version: 0.9
 Author: David Gallinat
 Author URI: https://github.com/plaidmelon
 */

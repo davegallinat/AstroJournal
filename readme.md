@@ -1,3 +1,7 @@
-Astronomy observation log.
-Wordpress plugin for keeping an astronomical observation journal.
-Work in progress
+#AstroJournal
+**Astronomy Journal.**
+
+Wordpress plugin for keeping an astronomical observation log.
+
+
+######v0.9 is currently a work in progress
