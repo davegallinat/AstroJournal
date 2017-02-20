@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: AstroJournal
-Plugin URL: 
-Description: 
+Plugin URL: https://github.com/plaidmelon/AstroJournal
+Description: Plugin for keeping astronomy observation journal.
 Version: 1.0
 Author: David Gallinat
 Author URI: https://github.com/plaidmelon
@@ -38,7 +38,7 @@ function astrojournal_setup_post_type() {
 		'capability_type'    => 'post',
 		'has_archive'        => false,
 		'hierarchical'       => false,
-		'supports'           => apply_filters('astrojournal_supports', array( 'title', 'editor')),
+		'supports'           => apply_filters('astrojournal_supports', array( 'title', 'editor', 'thumbnail', 'revisions')),
 	);
 	register_post_type('astrojournal', apply_filters('astrojournal_post_type_args', $astrojournal_args));
 }
@@ -48,6 +48,7 @@ add_action('init', 'astrojournal_setup_post_type');
 /* CREATE CUSTOM TAXONOMIES */
 function build_astrojournal_taxonomies() {
 	/* Equipment */
+	if (!taxonomy_exists('equipment')) {
 	register_taxonomy(
 		'equipment',
 		array(
@@ -67,13 +68,18 @@ function build_astrojournal_taxonomies() {
 						'menu_name'     => __('Equipment'),
 						),
 			'show_ui' => true,
+			'show_admin_column' => true,
 			'query_var' => true,
 			'rewrite' => array('slug' => 'equipment'),
 			)
 		);
-	
+		
+		/* Should I insert some basic equipment headings here? */
+	}
+
 	/* Object Type */
-	register_taxonomy(
+	if (!taxonomy_exists('object_type')) {
+		register_taxonomy(
 		'object_type',
 		array(
 			'astrojournal'
@@ -92,41 +98,16 @@ function build_astrojournal_taxonomies() {
 							'menu_name' => __('Object types'),
 							),
 			'show_ui' => true,
+			'show_admin_column' => true,
 			'query_var' => true,
-			'rewrite' => array('slug' => 'object_type'),
+			'rewrite' => array('slug' => 'object-type'),
 			)
 		);
-		
-	/* Constellations */
-	/* I'm going to handle this section differently, see code at bottom of file */
-	/*
-	register_taxonomy(
-		'constellations',
-		array(
-			'astrojournal'
-			),
-		array(
-			'hierarchical' => true,
-			'labels' => array(
-							'name' => _x('Constellation', 'taxonomy general name'),
-							'singular_name' => _x('Constellation', 'taxonomy singular name'),
-							'search_items' => __('Search Constellations'),
-							'all_items' => __('All Constellations'),
-							'edit_item' => __( 'Edit Constellation' ),
-							'update_item' => __( 'Update Constellation' ),
-							'add_new_item' => __( 'Add New Constellation' ),
-							'new_item_name' => __( 'New Constellation' ),
-							'menu_name' => __('Constellations'),
-							),
-			'show_ui' => true,
-			'query_var' => true,
-			'rewrite' => array('slug' => 'constellation'),
-			)
-		);
-	*/
-		
+	}
+
 	/* Conditions */
-	register_taxonomy(
+	if (!taxonomy_exists('conditions')) {
+		register_taxonomy(
 		'conditions',
 		array(
 			'astrojournal'
@@ -149,9 +130,11 @@ function build_astrojournal_taxonomies() {
 			'rewrite' => array('slug' => 'conditions'),
 			)
 		);
-		
+	}
+	
 	/* Locations */
-	register_taxonomy(
+	if (!taxonomy_exists('locations')) {
+		register_taxonomy(
 		'locations',
 		array(
 			'astrojournal'
@@ -170,11 +153,12 @@ function build_astrojournal_taxonomies() {
 							'menu_name' => __('Locations'),
 							),
 			'show_ui' => true,
+			'show_admin_column' => true,
 			'query_var' => true,
 			'rewrite' => array('slug' => 'locations'),
 			)
 		);
-	
+	}
 }
 
 add_action('init', 'build_astrojournal_taxonomies', 0);
@@ -183,108 +167,135 @@ add_action('init', 'build_astrojournal_taxonomies', 0);
 /************************************ 
 * INSERT CONSTELLATIONS INTO TAXONOMY
 *
-* Future versions will likely do this differently, but
-* I'm being lazy here and just creating a custom meta box.
-* I should create a custom category of constellations.
+* Future versions might handle this differently.
 * 
 * This takes a little more to create
-* the list of constellations.
+* the list of constellations,
 * I should probably move this to a seperate file.
 *
 *************************************/
 
+/* Call the creation function */
+add_action('init', 'create_constellation_taxonomy');
+
+/* Function to create constellation taxonomy */
+function create_constellation_taxonomy() {
+	if (!taxonomy_exists('constellation')) {
+		register_taxonomy(
+			'constellation',
+			'astrojournal',
+			array(
+				'hierarchical'=> true,
+				'label'=> __('Constellation'),
+				'show_ui'=> false,
+				'show_admin_column' => true,
+				'query_var'=>'constellation',
+				'rewrite'=>array('slug'=>'constellation')
+			
+			)
+		);
+		
+		/* Get the file with all of our constellation info */
+		include 'constellation_list.php';
+		
+		/* Register all the constellations */
+		for ($row = 0; $row < 88; $row++) {
+			if (!term_exists($constellation_list[$row]["name"], 'constellation')) {
+				wp_insert_term($constellation_list[$row]["name"], 'constellation', array(
+				'description'=>$constellation_list[$row]["description"],
+				'slug'=>$constellation_list[$row]["abbr"]));
+			}
+		}
+	}
+}
+
+/* Remove default meta_box */
+/* Wordpress div id = constellationdiv */
+function remove_default_constellation_meta_box() {
+	remove_meta_box('constellationdiv', 'astrojournal', 'side');
+}
+
+add_action( 'admin_menu' , 'remove_default_constellation_meta_box' );
+
+/* Create custom dropdown meta_box */
+function add_constellation_meta_box() {
+	
+	/* If we're not in admin then stop */
+	if (! is_admin())
+		return;
+	
+	/* Otherwise, go ahead and make the box */
+	add_meta_box(
+		'constellation_meta_box_ID',
+		__('Constellation'),
+		'constellation_meta_box_build',
+		'astrojournal',
+		'side',
+		'default'
+	);
+}
+
+function constellation_meta_box_build($post) {
+	/* Create nonce */
+	echo '<input type="hidden" name="constellation_nonce" id="constellation_nonce" value="' . 
+		wp_create_nonce('astrojournal_constellation_nonce') . '" />';
+	
+	/* Get all terms, even those without observations attached */
+	$constellations = get_terms('constellation', 'hide_empty=0');
+	
+	/* Start the dropdown box */
+	?>
+	<select name="post_constellation" id="post_constellation">
+		<!-- Display constellations as options -->
+		<?php
+		/* Get constellation attached to observation */
+		$names = wp_get_object_terms($post->ID, 'constellation');
+		?>
+		<option class='constellation-option' value='
+		<?php if (!count($names)) echo "selected";?>'>None</option>
+		<?php
+		foreach ($constellations as $constellation) {
+			if (!is_wp_error($names) && !empty($names) && !strcmp($constellation->slug, $names[0]->slug))
+				echo '<option class="constellation-option" value="' . $constellation->slug . '" selected>' . $constellation->name . '</option>';
+			else echo '<option class="constellation-option" value="' . $constellation->slug . '">' . $constellation->name . '</option>';
+		}
+		?>
+	</select>
+	<?php
+}
+
+add_action('admin_menu', 'add_constellation_meta_box');
 
 
-/* Constellation list */
-/*
-$constellation_list = array (
-	'Andromeda',
-	'Antlia',
-	'Apus',
-	'Aquarius',
-	'Aquila',
-	'Ara',
-	'Aries',
-	'Auriga',
-	'Boötes',
-	'Caelum',
-	'Camelopardalis',
-	'Cancer',
-	'Canes Venatici',
-	'Canis Major',
-	'Canis Minor',
-	'Capricornus',
-	'Carina',
-	'Cassiopeia',
-	'Centaurus',
-	'Cepheus',
-	'Cetus',
-	'Chamaeleon',
-	'Circinus',
-	'Columba',
-	'Coma Berenices',
-	'Corona Austrina',
-	'Corona Borealis',
-	'Corvus',
-	'Crater',
-	'Crux',
-	'Cygnus',
-	'Delphinus',
-	'Dorado',
-	'Draco',
-	'Equuleus',
-	'Eridanus',
-	'Fornax',
-	'Gemini',
-	'Grus',
-	'Hercules',
-	'Horologium',
-	'Hydra',
-	'Hydrus',
-	'Indus',
-	'Lacerta',
-	'Leo',
-	'Leo Minor',
-	'Lepus',
-	'Libra',
-	'Lupus',
-	'Lynx',
-	'Lyra',
-	'Mensa',
-	'Microscopium',
-	'Monoceros',
-	'Musca',
-	'Norma',
-	'Octans',
-	'Ophiuchus',
-	'Orion',
-	'Pavo',
-	'Pegasus',
-	'Perseus',
-	'Phoenix',
-	'Pictor',
-	'Pisces',
-	'Piscis Austrinus',
-	'Puppis',
-	'Pyxis',
-	'Reticulum',
-	'Sagitta',
-	'Sagittarius',
-	'Scorpius',
-	'Sculptor',
-	'Scutum',
-	'Serpens',
-	'Sextans',
-	'Taurus',
-	'Telescopium',
-	'Triangulum',
-	'Triangulum Australe',
-	'Tucana',
-	'Ursa Major',
-	'Ursa Minor',
-	'Vela',
-	'Virgo',
-	'Volans',
-	'Vulpecula'
-);
-*/
+/* Save meta_box data */
+add_action('save_post', 'save_constellation_data');
+
+function save_constellation_data($post_id) {
+	/* Verify nonce */
+	if (!wp_verify_nonce($_POST['constellation_nonce'],'astrojournal_constellation_nonce')) {
+		return $post_id;
+	}
+	
+	/* Check if autosave, if it is then do nothing*/
+	if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) {
+		return $post_id;
+	}
+	
+	/* Check permissions first */
+	if ('page' == $_POST['astrojournal']) {
+		if (!current_user_can('edit_page', $post_id))
+			return $post_id;
+	} else {
+		if (!current_user_can('edit_post', $post_id))
+			return $post_id;
+	}
+	
+	/* OK, now we can save */
+	$post = get_post($post_id);
+	if (($post->post_type == 'astrojournal') || ($post->post_type == 'page')) {
+		$constellation = $_POST['post_constellation'];
+		wp_set_object_terms($post_id, $constellation, 'constellation');
+	}
+	return $constellation;
+}
+
