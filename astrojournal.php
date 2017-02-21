@@ -1,7 +1,11 @@
 <?php
 /*
+ * @package AstroJournal
+ * @version 0.9
+ */
+/*
 Plugin Name: AstroJournal
-Plugin URL: https://github.com/plaidmelon/AstroJournal
+Plugin URI: https://github.com/plaidmelon/AstroJournal
 Description: Plugin for keeping an astronomy observation journal.
 Version: 0.9
 Author: David Gallinat
@@ -39,6 +43,7 @@ function astrojournal_setup_post_type() {
 		'has_archive'        => false,
 		'hierarchical'       => false,
 		'supports'           => apply_filters('astrojournal_supports', array( 'title', 'editor', 'thumbnail', 'revisions')),
+		'menu_icon'          => 'dashicons-star-filled',
 	);
 	register_post_type('astrojournal', apply_filters('astrojournal_post_type_args', $astrojournal_args));
 }
@@ -299,3 +304,41 @@ function save_constellation_data($post_id) {
 	return $constellation;
 }
 
+
+/**********************
+*
+* Settings Page
+*
+***********************/
+
+/* Add settings menu item */
+add_action('admin_menu', 'add_astrojournal_settings_menu_item');
+
+function add_astrojournal_settings_menu_item() {
+	add_submenu_page('edit.php?post_type=astrojournal', 'AstroJournal Settings', 'Settings', 'manage_options', 'astrojournal-settings', 'astrojournal_settings_page_build');
+}
+
+/* Create actual settings page */
+function astrojournal_settings_page_build() {
+	if ( !current_user_can( 'manage_options' ) )  {
+		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+	}
+
+	/* Build the form */
+	?>
+	
+	<div class="wrap">
+	<h1>AstroJournal Settings<h1>
+		
+	<p>Nothing here yet, still working on it.</p>
+	
+	<form method="post" action="options.php">
+		<?php
+		settings_fields('section');
+		do_settings_sections('astrojournal-settings');
+		submit_button();
+		?>
+	</form>
+	</div> <!-- end wrap -->
+	<?php
+}
