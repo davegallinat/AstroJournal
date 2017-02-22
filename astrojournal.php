@@ -18,32 +18,34 @@ function astrojournal_setup_post_type() {
 	$astrojournal_labels = apply_filters('astrojournal_labels', array(
 		'name'                => 'AstroJournal',
 		'singular_name'       => 'AstroJournal',
-		'add_new'             => __('Add New', 'astrojournal'),
+		'add_new'             => __('New Observation', 'astrojournal'),
 		'add_new_item'        => __('Add New Observation', 'astrojournal'),
 		'edit_item'           => __('Edit Observation', 'astrojournal'),
 		'new_item'            => __('New Observation', 'astrojournal'),
 		'all_items'           => __('All Observations', 'astrojournal'),
 		'view_item'           => __('View Observation', 'astrojournal'),
+		'view_items'          => __('View Observations', 'astrojournal'),
 		'search_items'        => __('Search Observations', 'astrojournal'),
 		'not_found'           => __('No Observations found', 'astrojournal'),
 		'not_found_in_trash'  => __('No Observations found in Trash', 'astrojournal'),
 		'parent_item_colon'   => '',
 		'menu_name'           => __('AstroJournal', 'astrojournal'),
-		'exclude_from_search' => true
 	));
 	
 	$astrojournal_args = array(
-		'labels'             => $astrojournal_labels,
-		'public'             => true,
-		'publicly_queryable' => true,
-		'show_ui'            => true,
-		'show_in_menu'       => true,
-		'query_var'          => true,
-		'capability_type'    => 'post',
-		'has_archive'        => false,
-		'hierarchical'       => false,
-		'supports'           => apply_filters('astrojournal_supports', array( 'title', 'editor', 'thumbnail', 'revisions')),
-		'menu_icon'          => 'dashicons-star-filled',
+		'labels'              => $astrojournal_labels,
+		'public'              => true,
+		'publicly_queryable'  => true,
+		'show_ui'             => true,
+		'show_in_menu'        => true,
+		'show_in_nav_menus'   => true,
+		'query_var'           => true,
+		'capability_type'     => 'post',
+		'has_archive'         => true,
+		'hierarchical'        => false,
+		'exclude_from_search' => true,
+		'supports'            => apply_filters('astrojournal_supports', array( 'title', 'editor', 'thumbnail', 'author', 'excerpt', 'comments', 'revisions')),
+		'menu_icon'           => 'dashicons-star-filled',
 	);
 	register_post_type('astrojournal', apply_filters('astrojournal_post_type_args', $astrojournal_args));
 }
@@ -191,8 +193,8 @@ function create_constellation_taxonomy() {
 			'astrojournal',
 			array(
 				'hierarchical'=> true,
-				'label'=> __('Constellation'),
-				'show_ui'=> false,
+				'label'=> __('Constellations'),
+				'show_ui'=> true,
 				'show_admin_column' => true,
 				'query_var'=>'constellation',
 				'rewrite'=>array('slug'=>'constellation')
@@ -256,8 +258,7 @@ function constellation_meta_box_build($post) {
 		/* Get constellation attached to observation */
 		$names = wp_get_object_terms($post->ID, 'constellation');
 		?>
-		<option class='constellation-option' value='
-		<?php if (!count($names)) echo "selected";?>'>None</option>
+		<option class='constellation-option' value=''>None</option>
 		<?php
 		foreach ($constellations as $constellation) {
 			if (!is_wp_error($names) && !empty($names) && !strcmp($constellation->slug, $names[0]->slug))
@@ -305,6 +306,57 @@ function save_constellation_data($post_id) {
 }
 
 
+/*****************************************************
+* Append our AstroJournal post type to the main query.
+*
+* Later on I might give the user the option of where to
+* include the AstroJournal posts.
+*******************************************************/
+
+/* Priority 99 so all the other stuff (posts) gets included first */
+add_filter('pre_get_posts', 'astrojournal_include_posts_in_main', 99);
+
+function astrojournal_include_posts_in_main($query) {
+	if ($query->is_home() && $query->is_main_query()){
+		$post_types = $query->get('post_type');
+		
+		if (!is_array($post_types) && !empty($post_types)) {
+			$post_types = explode(',', $post_types);
+		}
+		
+		/* Check if empty, include post just in case */
+		/* Should I do this, what if they excluded on purpose? */
+		if (empty($post_types)) {
+			$post_types[] = 'post';
+		}
+		
+		/* Include the AstroJournal in the post_types array */
+		$post_types[] = 'astrojournal';
+		
+		/* trim and remove empty stuff */
+		$post_types = array_map('trim', $post_types);
+		$post_types = array_filter($post_types);
+		
+		/* update query list of post_types */
+		$query->set('post_type', $post_types);
+	}
+	
+	return $query;
+}
+
+
+/**********************************************************************
+*
+* Trying to get meta
+*
+************************************************************************/
+
+
+
+
+
+/***********************************************************************/
+
 /**********************
 *
 * Settings Page
@@ -326,13 +378,13 @@ function astrojournal_settings_page_build() {
 
 	/* Build the form */
 	?>
-	
 	<div class="wrap">
 	<h1>AstroJournal Settings<h1>
 		
 	<p>Nothing here yet, still working on it.</p>
 	
 	<form method="post" action="options.php">
+		<input type="date" name="the_date" />
 		<?php
 		settings_fields('section');
 		do_settings_sections('astrojournal-settings');
