@@ -12,7 +12,6 @@ Author: David Gallinat
 Author URI: https://github.com/plaidmelon
 */
 
-
 /* CREATE ASTROJOURNAL POST TYPE */
 function astrojournal_setup_post_type() {
 	$astrojournal_labels = apply_filters('astrojournal_labels', array(
@@ -348,116 +347,70 @@ function astrojournal_include_posts_in_main($query) {
 * CREATE OBSERVATION DATE META
 *
 *************************************/
-/* Call the creation function */
-add_action('init', 'create_observation_date_taxonomy');
 
-/* Function to create observation date taxonomy */
-function create_observation_date_taxonomy() {
-	if (!taxonomy_exists('observation_date')) {
-		register_taxonomy(
-			'observation_date',
-			'astrojournal',
-			array(
-				'hierarchical'=> true,
-				'label'=> __('Observation Date'),
-				'show_ui'=> false,
-				'show_admin_column' => true,
-				'query_var'=>'constellation',
-				'rewrite'=>array('slug'=>'ob-date')
-			
-			)
-		);
-	}
-}
-
-/* Remove default meta_box */
-/* Wordpress div id = observation_datediv */
-function remove_default_observation_date_meta_box() {
-	remove_meta_box('observation_datediv', 'astrojournal', 'side');
-}
-
-add_action( 'admin_menu' , 'remove_default_observation_date_meta_box' );
-
-/* Create custom meta_box */
-function add_observation_date_meta_box() {
-	
-	/* If we're not in admin then stop */
-	if (! is_admin())
-		return;
-	
-	/* Otherwise, go ahead and make the box */
+/* Register meta_box */
+function register_observation_date_meta_box($post) {
 	add_meta_box(
-		'observation_date_meta_box_ID',
-		__('Observation Date'),
-		'build_observation_date_meta_box',
-		'astrojournal',
-		'side',
-		'default'
+		'observation_date_meta_box',         // ID of the box
+		__( 'Observation Date' ),            // Box title
+		'create_observation_date_meta_box',  // html to build the box
+		'astrojournal',                      // what page(s) to show
+		'side',                              // where on the page
+		'high'                               // how important is the meta
 	);
 }
+add_action('add_meta_boxes_astrojournal', 'register_observation_date_meta_box');
 
-function build_observation_date_meta_box($post) {
-	/* Create nonce */
-	echo '<input type="hidden" name="observation_date_nonce" id="observation_date_nonce" value="' . 
-		wp_create_nonce('astrojournal_observation_date_nonce') . '" />';
+/* HTML for the meta_box */
+function create_observation_date_meta_box($post) {
+	// Get already saved date, if exists
+	$observation_date = get_post_meta($post->ID, 'observation_date', true);
 	
-	/* Get all terms, even those without observations attached */
-	$ob_dates = get_terms('observation_date');
-
-	/* Get observation date attached to observation */
-	$names = wp_get_object_terms($post->ID, 'observation_date');
-
-	foreach ($ob_dates as $ob_date) {
-		if (!is_wp_error($names) && !empty($names) && !strcmp($ob_date->slug, $names[0]->slug)) {
-			/* put date into a variable, php was puking if i didn't */
-			$parsed_date = $ob_date->slug;
-			?>
-			<input type="date" name="post_observation_date" id="post_observation_date" value="<?php echo $parsed_date; ?>" />
-			<?php
-		}
-		else { ?>
-			<input type="date" name="post_observation_date" id="post_observation_date" value="" />
-		<?php	
-		}
-	}
+	// Create nonce
+	wp_nonce_field(plugin_basename(__FILE__), 'aj_observation_date_nonce');
+	?>
+	
+	<p>Date (mm/dd/yyyy): <input id="aj_observation_date" name="aj_observation_date" type="text" placeholder="mm/dd/yyyy" value="<?php echo date('m/d/Y', $observation_date); ?>" /></p>
+	<?php
 }
 
-add_action('admin_menu', 'add_observation_date_meta_box');
-
-
-/* Save meta_box data */
-add_action('save_post', 'save_observation_date_data');
-
-function save_observation_date_data($post_id) {
-	/* Verify nonce */
-	if (!wp_verify_nonce($_POST['observation_date_nonce'],'astrojournal_observation_date_nonce')) {
-		return $post_id;
+/* Save the date */
+function save_observation_date($post_id) {
+	// Check nonce
+	if (!wp_verify_nonce($_POST['aj_observation_date_nonce'], plugin_basename(__FILE__)))
+		return;
+	
+	// Check user
+	if (!current_user_can('edit_posts'))
+		return;
+	
+	// Has the field been filled
+	if (!empty($_POST['aj_observation_date'])) {
+	$observation_date = $_POST['aj_observation_date'];
 	}
 	
-	/* Check if autosave, if it is then do nothing*/
-	if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) {
-		return $post_id;
-	}
-	
-	/* Check permissions first */
-	if ('page' == $_POST['astrojournal']) {
-		if (!current_user_can('edit_page', $post_id))
-			return $post_id;
-	} else {
-		if (!current_user_can('edit_post', $post_id))
-			return $post_id;
-	}
-	
-	/* OK, now we can save */
-	$post = get_post($post_id);
-	if (($post->post_type == 'astrojournal') || ($post->post_type == 'page')) {
-		$observation_date = $_POST['post_observation_date'];
-		wp_set_object_terms($post_id, $observation_date, 'observation_date');
-	}
-	return $observation_date;
+	$observation_date = strtotime($observation_date);
+	update_post_meta($post_id, 'observation_date', $observation_date);
+
 }
+add_action('save_post', 'save_observation_date');
 
-
+/* datepicker code */
+add_action( 'admin_enqueue_scripts', 'enqueue_date_picker' );
+function enqueue_date_picker(){
+            wp_enqueue_script(
+			'aj_datepicker', 
+			plugins_url('admin.js', __FILE__ ), 
+			array('jquery', 'jquery-ui-core', 'jquery-ui-datepicker'),
+			time(),
+			true
+		);	
+		
+		wp_enqueue_style(
+			'jquery-ui-css',
+			'http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css'
+		);
+}
 
 /**********************************************************************
 *
