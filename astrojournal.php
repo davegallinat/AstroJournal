@@ -62,6 +62,7 @@ function build_astrojournal_taxonomies() {
 			),
 		array(
 			'hierarchical' => true,
+			'public'       => true,
 			'labels' => array(
 						'name'          => _x('Equipment', 'taxonomy general name'),
 						'singular_name' => _x('Equipment', 'taxonomy singular name'),
@@ -75,7 +76,7 @@ function build_astrojournal_taxonomies() {
 						),
 			'show_ui' => true,
 			'show_admin_column' => true,
-			'query_var' => true,
+			'query_var' => 'equipment',
 			'rewrite' => array('slug' => 'equipment'),
 			)
 		);
@@ -105,7 +106,7 @@ function build_astrojournal_taxonomies() {
 							),
 			'show_ui' => true,
 			'show_admin_column' => true,
-			'query_var' => true,
+			'query_var' => 'object_type',
 			'rewrite' => array('slug' => 'object-type'),
 			)
 		);
@@ -132,7 +133,7 @@ function build_astrojournal_taxonomies() {
 							'menu_name' => __('Conditions'),
 							),
 			'show_ui' => true,
-			'query_var' => true,
+			'query_var' => 'conditions',
 			'rewrite' => array('slug' => 'conditions'),
 			)
 		);
@@ -160,7 +161,7 @@ function build_astrojournal_taxonomies() {
 							),
 			'show_ui' => true,
 			'show_admin_column' => true,
-			'query_var' => true,
+			'query_var' => 'locations',
 			'rewrite' => array('slug' => 'locations'),
 			)
 		);
@@ -343,78 +344,92 @@ function astrojournal_include_posts_in_main($query) {
 	return $query;
 }
 
-/************************************ 
-* CREATE OBSERVATION DATE META
-*
-*************************************/
+/***************************
+* OBSERVATION DATETIME COMBO
+****************************/
 
-/* Register meta_box */
-function register_observation_date_meta_box($post) {
+/* Register meta-box */
+function register_observation_datetime_meta_box($post) {
 	add_meta_box(
-		'observation_date_meta_box',         // ID of the box
-		__( 'Observation Date' ),            // Box title
-		'create_observation_date_meta_box',  // html to build the box
-		'astrojournal',                      // what page(s) to show
-		'side',                              // where on the page
-		'high'                               // how important is the meta
+		'observation_datetime_meta_box',
+		__('Observation Date / Time'),
+		'create_observation_datetime_meta_box',
+		'astrojournal',
+		'side',
+		'default'
 	);
 }
-add_action('add_meta_boxes_astrojournal', 'register_observation_date_meta_box');
+add_action('add_meta_boxes_astrojournal', 'register_observation_datetime_meta_box');
 
-/* HTML for the meta_box */
-function create_observation_date_meta_box($post) {
-	// Get already saved date, if exists
-	$observation_date = get_post_meta($post->ID, 'observation_date', true);
+/* HTML for meta_box */
+function create_observation_datetime_meta_box($post) {
+	// Get saved date if it exists
+	$observation_datetime = get_post_meta($post->ID, 'observation_datetime', true);
 	
 	// Create nonce
-	wp_nonce_field(plugin_basename(__FILE__), 'aj_observation_date_nonce');
+	wp_nonce_field(plugin_basename(__FILE__), 'aj_observation_datetime_nonce');
+
+	// Create input field
 	?>
-	
-	<p>Date (mm/dd/yyyy): <input id="aj_observation_date" name="aj_observation_date" type="text" placeholder="mm/dd/yyyy" value="<?php echo date('m/d/Y', $observation_date); ?>" /></p>
+	<p><input id="aj_observation_datetime" name="aj_observation_datetime" type="text" value="<?php echo date('m/d/Y g:i a', $observation_datetime); ?>" placeholder="mm/dd/yyyy 00:00 am" /></p>
+	<p>Observed on: <?php echo date('M d, Y', $observation_datetime).' @ '.date('g:i a', $observation_datetime);?></p>
 	<?php
 }
 
-/* Save the date */
-function save_observation_date($post_id) {
-	// Check nonce
-	if (!wp_verify_nonce($_POST['aj_observation_date_nonce'], plugin_basename(__FILE__)))
+/* Save the date and time */
+function save_observation_datetime($post_id) {
+	//check noonce
+	if (!wp_verify_nonce($_POST['aj_observation_datetime_nonce'], plugin_basename(__FILE__)))
 		return;
 	
 	// Check user
 	if (!current_user_can('edit_posts'))
 		return;
 	
-	// Has the field been filled
-	if (!empty($_POST['aj_observation_date'])) {
-	$observation_date = $_POST['aj_observation_date'];
+	// Is the field filled
+	if (!empty($_POST['aj_observation_datetime'])) {
+		$observation_datetime = $_POST['aj_observation_datetime'];
 	}
 	
-	$observation_date = strtotime($observation_date);
-	update_post_meta($post_id, 'observation_date', $observation_date);
-
+	$observation_datetime = strtotime($observation_datetime);
+	update_post_meta($post_id, 'observation_datetime', $observation_datetime);
 }
-add_action('save_post', 'save_observation_date');
+add_action('save_post', 'save_observation_datetime');
 
-/* datepicker code */
-add_action( 'admin_enqueue_scripts', 'enqueue_date_picker' );
-function enqueue_date_picker(){
-            wp_enqueue_script(
-			'aj_datepicker', 
-			plugins_url('admin.js', __FILE__ ), 
-			array('jquery', 'jquery-ui-core', 'jquery-ui-datepicker'),
-			time(),
-			true
-		);	
-		
-		wp_enqueue_style(
-			'jquery-ui-css',
-			'http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css'
-		);
+/* Set-up date/time picker */
+function enqueue_datetime_picker() {
+	wp_enqueue_script(
+	'timepicker',
+	plugins_url('jquery-ui-timepicker-addon.js', __FILE__),
+	array('jquery', 'jquery-ui-core', 'jquery-ui-datepicker'),
+	false,
+	true
+	);
+	
+	wp_enqueue_script(
+	'aj_datetime_picker',
+	plugins_url('admin.js', __FILE__),
+	array('jquery', 'timepicker'),
+	false,
+	true
+	);
+	
+	wp_enqueue_style(
+	'jquery-ui-css',
+	'http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css'
+	);
+	
+	wp_enqueue_style(
+	'timepicker-css',
+	plugins_url('jquery-ui-timepicker-addon.css', __FILE__)
+	);
 }
+add_action('admin_enqueue_scripts', 'enqueue_datetime_picker');
+
 
 /**********************************************************************
 *
-* Trying to get meta
+* MISC FUNCTIONS
 *
 ************************************************************************/
 
@@ -461,3 +476,9 @@ function astrojournal_settings_page_build() {
 	</div> <!-- end wrap -->
 	<?php
 }
+
+/**************************************** 
+* TODO: add time picker or datetime combo
+*****************************************/
+
+
