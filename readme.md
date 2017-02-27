@@ -3,7 +3,7 @@
 
 Wordpress plugin for keeping an astronomical observation log.
 
-######v0.9 is currently a work in progress
+2/24/17 - First release 0.9
 
 ######**Utilizes**
 ######[jQuery](https://jquery.com) and [jQueryUI](https://jqueryui.com)
