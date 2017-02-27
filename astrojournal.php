@@ -1,484 +1,99 @@
 <?php
 /*
- * @package AstroJournal
- * @version 0.9
- */
+* @package AstroJournal
+* @version 1.0
+*/
 /*
 Plugin Name: AstroJournal
 Plugin URI: https://github.com/plaidmelon/AstroJournal
-Description: Plugin for keeping an astronomy observation journal.
-Version: 0.9
+Description: Wordpress plugin for keeping an astronomy observation journal.
+Version: 1.0
 Author: David Gallinat
 Author URI: https://github.com/plaidmelon
 */
 
-/* CREATE ASTROJOURNAL POST TYPE */
-function astrojournal_setup_post_type() {
-	$astrojournal_labels = apply_filters('astrojournal_labels', array(
-		'name'                => 'AstroJournal',
-		'singular_name'       => 'AstroJournal',
-		'add_new'             => __('New Observation', 'astrojournal'),
-		'add_new_item'        => __('Add New Observation', 'astrojournal'),
-		'edit_item'           => __('Edit Observation', 'astrojournal'),
-		'new_item'            => __('New Observation', 'astrojournal'),
-		'all_items'           => __('All Observations', 'astrojournal'),
-		'view_item'           => __('View Observation', 'astrojournal'),
-		'view_items'          => __('View Observations', 'astrojournal'),
-		'search_items'        => __('Search Observations', 'astrojournal'),
-		'not_found'           => __('No Observations found', 'astrojournal'),
-		'not_found_in_trash'  => __('No Observations found in Trash', 'astrojournal'),
-		'parent_item_colon'   => '',
-		'menu_name'           => __('AstroJournal', 'astrojournal'),
-	));
-	
-	$astrojournal_args = array(
-		'labels'              => $astrojournal_labels,
-		'public'              => true,
-		'publicly_queryable'  => true,
-		'show_ui'             => true,
-		'show_in_menu'        => true,
-		'show_in_nav_menus'   => true,
-		'query_var'           => true,
-		'capability_type'     => 'post',
-		'has_archive'         => true,
-		'hierarchical'        => false,
-		'exclude_from_search' => true,
-		'supports'            => apply_filters('astrojournal_supports', array( 'title', 'editor', 'thumbnail', 'author', 'excerpt', 'comments', 'revisions')),
-		'menu_icon'           => 'dashicons-star-filled',
-	);
-	register_post_type('astrojournal', apply_filters('astrojournal_post_type_args', $astrojournal_args));
-}
 
-add_action('init', 'astrojournal_setup_post_type');
-
-/* CREATE CUSTOM TAXONOMIES */
-function build_astrojournal_taxonomies() {
-	/* Equipment */
-	if (!taxonomy_exists('equipment')) {
-	register_taxonomy(
-		'equipment',
-		array(
-			'astrojournal'
-			),
-		array(
-			'hierarchical' => true,
-			'public'       => true,
-			'labels' => array(
-						'name'          => _x('Equipment', 'taxonomy general name'),
-						'singular_name' => _x('Equipment', 'taxonomy singular name'),
-						'search_items'  => __('Search Equipment'),
-						'all_items'     => __('All Equipment'),
-						'edit_item'     => __( 'Edit Equipment' ),
-						'update_item'   => __( 'Update Equipment' ),
-						'add_new_item'  => __( 'Add New Equipment' ),
-						'new_item_name' => __( 'New Equipment' ),
-						'menu_name'     => __('Equipment'),
-						),
-			'show_ui' => true,
-			'show_admin_column' => true,
-			'query_var' => 'equipment',
-			'rewrite' => array('slug' => 'equipment'),
-			)
-		);
+class pm_createCustomPostType
+{
+	/* CONSTRUCTOR */
+	public function __construct($name, $args = array(), $labels = array())
+	{
+		/* Setup CPT variables */
+		$this -> postTypeName   = strtolower(str_replace(' ', '', $name));
+		$this -> postTypeDisplayName = $name;
+		$this -> postTypeArgs   = $args;
+		$this -> postTypeLabels = $labels;
 		
-		/* Should I insert some basic equipment headings here? */
-	}
-
-	/* Object Type */
-	if (!taxonomy_exists('object_type')) {
-		register_taxonomy(
-		'object_type',
-		array(
-			'astrojournal'
-			),
-		array(
-			'hierarchical' => true,
-			'labels' => array(
-							'name' => _x('Object type', 'taxonomy general name'),
-							'singular_name' => _x('Object type', 'taxonomy singular name'),
-							'search_items' => __('Search Object types'),
-							'all_items' => __('All Object types'),
-							'edit_item' => __( 'Edit Object type' ),
-							'update_item' => __( 'Update Object type' ),
-							'add_new_item' => __( 'Add New Object type' ),
-							'new_item_name' => __( 'New Object type' ),
-							'menu_name' => __('Object types'),
-							),
-			'show_ui' => true,
-			'show_admin_column' => true,
-			'query_var' => 'object_type',
-			'rewrite' => array('slug' => 'object-type'),
-			)
-		);
-	}
-
-	/* Conditions */
-	if (!taxonomy_exists('conditions')) {
-		register_taxonomy(
-		'conditions',
-		array(
-			'astrojournal'
-			),
-		array(
-			'hierarchical' => true,
-			'labels' => array(
-							'name' => _x('Conditions', 'taxonomy general name'),
-							'singular_name' => _x('Condition', 'taxonomy singular name'),
-							'search_items' => __('Search Conditions'),
-							'all_items' => __('All Conditions'),
-							'edit_item' => __( 'Edit Condition' ),
-							'update_item' => __( 'Update Condition' ),
-							'add_new_item' => __( 'Add New Condition' ),
-							'new_item_name' => __( 'New Condition' ),
-							'menu_name' => __('Conditions'),
-							),
-			'show_ui' => true,
-			'query_var' => 'conditions',
-			'rewrite' => array('slug' => 'conditions'),
-			)
-		);
-	}
-	
-	/* Locations */
-	if (!taxonomy_exists('locations')) {
-		register_taxonomy(
-		'locations',
-		array(
-			'astrojournal'
-			),
-		array(
-			'hierarchical' => true,
-			'labels' => array(
-							'name' => _x('Location', 'taxonomy general name'),
-							'singular_name' => _x('Location', 'taxonomy singular name'),
-							'search_items' => __('Search Locations'),
-							'all_items' => __('All Locations'),
-							'edit_item' => __( 'Edit Location' ),
-							'update_item' => __( 'Update Location' ),
-							'add_new_item' => __( 'Add New Location' ),
-							'new_item_name' => __( 'New Location' ),
-							'menu_name' => __('Locations'),
-							),
-			'show_ui' => true,
-			'show_admin_column' => true,
-			'query_var' => 'locations',
-			'rewrite' => array('slug' => 'locations'),
-			)
-		);
-	}
-}
-
-add_action('init', 'build_astrojournal_taxonomies', 0);
-
-
-/************************************ 
-* INSERT CONSTELLATIONS INTO TAXONOMY
-*
-* Future versions might handle this differently.
-* 
-* This takes a little more to create
-* the list of constellations,
-* I should probably move this to a seperate file.
-*
-*************************************/
-
-/* Call the creation function */
-add_action('init', 'create_constellation_taxonomy');
-
-/* Function to create constellation taxonomy */
-function create_constellation_taxonomy() {
-	if (!taxonomy_exists('constellation')) {
-		register_taxonomy(
-			'constellation',
-			'astrojournal',
-			array(
-				'hierarchical'=> true,
-				'label'=> __('Constellations'),
-				'show_ui'=> false,
-				'show_admin_column' => true,
-				'query_var'=>'constellation',
-				'rewrite'=>array('slug'=>'constellation')
-			
-			)
-		);
-		
-		/* Get the file with all of our constellation info */
-		include 'constellation_list.php';
-		
-		/* Register all the constellations */
-		for ($row = 0; $row < 88; $row++) {
-			if (!term_exists($constellation_list[$row]["name"], 'constellation')) {
-				wp_insert_term($constellation_list[$row]["name"], 'constellation', array(
-				'description'=>$constellation_list[$row]["description"],
-				'slug'=>$constellation_list[$row]["abbr"]));
-			}
-		}
-	}
-}
-
-/* Remove default meta_box */
-/* Wordpress div id = constellationdiv */
-function remove_default_constellation_meta_box() {
-	remove_meta_box('constellationdiv', 'astrojournal', 'side');
-}
-
-add_action( 'admin_menu' , 'remove_default_constellation_meta_box' );
-
-/* Create custom dropdown meta_box */
-function add_constellation_meta_box() {
-	
-	/* If we're not in admin then stop */
-	if (! is_admin())
-		return;
-	
-	/* Otherwise, go ahead and make the box */
-	add_meta_box(
-		'constellation_meta_box_ID',
-		__('Constellation'),
-		'constellation_meta_box_build',
-		'astrojournal',
-		'side',
-		'default'
-	);
-}
-
-function constellation_meta_box_build($post) {
-	/* Create nonce */
-	echo '<input type="hidden" name="constellation_nonce" id="constellation_nonce" value="' . 
-		wp_create_nonce('astrojournal_constellation_nonce') . '" />';
-	
-	/* Get all terms, even those without observations attached */
-	$constellations = get_terms('constellation', 'hide_empty=0');
-	
-	/* Start the dropdown box */
-	?>
-	<select name="post_constellation" id="post_constellation">
-		<!-- Display constellations as options -->
-		<?php
-		/* Get constellation attached to observation */
-		$names = wp_get_object_terms($post->ID, 'constellation');
-		?>
-		<option class='constellation-option' value=''>None</option>
-		<?php
-		foreach ($constellations as $constellation) {
-			if (!is_wp_error($names) && !empty($names) && !strcmp($constellation->slug, $names[0]->slug))
-				echo '<option class="constellation-option" value="' . $constellation->slug . '" selected>' . $constellation->name . '</option>';
-			else echo '<option class="constellation-option" value="' . $constellation->slug . '">' . $constellation->name . '</option>';
-		}
-		?>
-	</select>
-	<?php
-}
-
-add_action('admin_menu', 'add_constellation_meta_box');
-
-
-/* Save meta_box data */
-add_action('save_post', 'save_constellation_data');
-
-function save_constellation_data($post_id) {
-	/* Verify nonce */
-	if (!wp_verify_nonce($_POST['constellation_nonce'],'astrojournal_constellation_nonce')) {
-		return $post_id;
-	}
-	
-	/* Check if autosave, if it is then do nothing*/
-	if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) {
-		return $post_id;
-	}
-	
-	/* Check permissions first */
-	if ('page' == $_POST['astrojournal']) {
-		if (!current_user_can('edit_page', $post_id))
-			return $post_id;
-	} else {
-		if (!current_user_can('edit_post', $post_id))
-			return $post_id;
-	}
-	
-	/* OK, now we can save */
-	$post = get_post($post_id);
-	if (($post->post_type == 'astrojournal') || ($post->post_type == 'page')) {
-		$constellation = $_POST['post_constellation'];
-		wp_set_object_terms($post_id, $constellation, 'constellation');
-	}
-	return $constellation;
-}
-
-
-/*****************************************************
-* Append our AstroJournal post type to the main query.
-*
-* Later on I might give the user the option of where to
-* include the AstroJournal posts.
-*******************************************************/
-
-/* Priority 99 so all the other stuff (posts) gets included first */
-add_filter('pre_get_posts', 'astrojournal_include_posts_in_main', 99);
-
-function astrojournal_include_posts_in_main($query) {
-	if ($query->is_home() && $query->is_main_query()){
-		$post_types = $query->get('post_type');
-		
-		if (!is_array($post_types) && !empty($post_types)) {
-			$post_types = explode(',', $post_types);
+		/* Check if exists and add action*/
+		if (!post_type_exists($this->postTypeName))
+		{
+			add_action('init', array(&$this, 'register_post_type'));
 		}
 		
-		/* Check if empty, include post just in case */
-		/* Should I do this, what if they excluded on purpose? */
-		if (empty($post_types)) {
-			$post_types[] = 'post';
-		}
-		
-		/* Include the AstroJournal in the post_types array */
-		$post_types[] = 'astrojournal';
-		
-		/* trim and remove empty stuff */
-		$post_types = array_map('trim', $post_types);
-		$post_types = array_filter($post_types);
-		
-		/* update query list of post_types */
-		$query->set('post_type', $post_types);
+		/* Listen for save */
+		$this -> saveMeta();
 	}
 	
-	return $query;
-}
-
-/***************************
-* OBSERVATION DATETIME COMBO
-****************************/
-
-/* Register meta-box */
-function register_observation_datetime_meta_box($post) {
-	add_meta_box(
-		'observation_datetime_meta_box',
-		__('Observation Date / Time'),
-		'create_observation_datetime_meta_box',
-		'astrojournal',
-		'side',
-		'default'
-	);
-}
-add_action('add_meta_boxes_astrojournal', 'register_observation_datetime_meta_box');
-
-/* HTML for meta_box */
-function create_observation_datetime_meta_box($post) {
-	// Get saved date if it exists
-	$observation_datetime = get_post_meta($post->ID, 'observation_datetime', true);
-	
-	// Create nonce
-	wp_nonce_field(plugin_basename(__FILE__), 'aj_observation_datetime_nonce');
-
-	// Create input field
-	?>
-	<p><input id="aj_observation_datetime" name="aj_observation_datetime" type="text" value="<?php echo date('m/d/Y g:i a', $observation_datetime); ?>" placeholder="mm/dd/yyyy 00:00 am" /></p>
-	<p>Observed on: <?php echo date('M d, Y', $observation_datetime).' @ '.date('g:i a', $observation_datetime);?></p>
-	<?php
-}
-
-/* Save the date and time */
-function save_observation_datetime($post_id) {
-	//check noonce
-	if (!wp_verify_nonce($_POST['aj_observation_datetime_nonce'], plugin_basename(__FILE__)))
-		return;
-	
-	// Check user
-	if (!current_user_can('edit_posts'))
-		return;
-	
-	// Is the field filled
-	if (!empty($_POST['aj_observation_datetime'])) {
-		$observation_datetime = $_POST['aj_observation_datetime'];
-	}
-	
-	$observation_datetime = strtotime($observation_datetime);
-	update_post_meta($post_id, 'observation_datetime', $observation_datetime);
-}
-add_action('save_post', 'save_observation_datetime');
-
-/* Set-up date/time picker */
-function enqueue_datetime_picker() {
-	wp_enqueue_script(
-	'timepicker',
-	plugins_url('jquery-ui-timepicker-addon.js', __FILE__),
-	array('jquery', 'jquery-ui-core', 'jquery-ui-datepicker'),
-	false,
-	true
-	);
-	
-	wp_enqueue_script(
-	'aj_datetime_picker',
-	plugins_url('admin.js', __FILE__),
-	array('jquery', 'timepicker'),
-	false,
-	true
-	);
-	
-	wp_enqueue_style(
-	'jquery-ui-css',
-	'http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css'
-	);
-	
-	wp_enqueue_style(
-	'timepicker-css',
-	plugins_url('jquery-ui-timepicker-addon.css', __FILE__)
-	);
-}
-add_action('admin_enqueue_scripts', 'enqueue_datetime_picker');
-
-
-/**********************************************************************
-*
-* MISC FUNCTIONS
-*
-************************************************************************/
-
-
-
-
-
-/***********************************************************************/
-
-/**********************
-*
-* Settings Page
-*
-***********************/
-
-/* Add settings menu item */
-add_action('admin_menu', 'add_astrojournal_settings_menu_item');
-
-function add_astrojournal_settings_menu_item() {
-	add_submenu_page('edit.php?post_type=astrojournal', 'AstroJournal Settings', 'Settings', 'manage_options', 'astrojournal-settings', 'astrojournal_settings_page_build');
-}
-
-/* Create actual settings page */
-function astrojournal_settings_page_build() {
-	if ( !current_user_can( 'manage_options' ) )  {
-		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
-	}
-
-	/* Build the form */
-	?>
-	<div class="wrap">
-	<h1>AstroJournal Settings<h1>
+	/* REGISTER POST TYPE */
+	public function registerPostType()
+	{
 		
-	<p>Nothing here yet, still working on it.</p>
+	}
 	
-	<form method="post" action="options.php">
-		<input type="date" name="the_date" />
-		<?php
-		settings_fields('section');
-		do_settings_sections('astrojournal-settings');
-		submit_button();
-		?>
-	</form>
-	</div> <!-- end wrap -->
-	<?php
+	/* UPDATE POST META WHEN POST IS SAVED */
+	public function saveMeta()
+	{
+		
+	}
+	
+	/* ADD POST TYPE TO MAIN QUERY */
+	public function addToQuery()
+	{
+		
+	}
 }
 
-/**************************************** 
-* TODO: add time picker or datetime combo
-*****************************************/
+class pm_createTaxonomy extends pm_createCustomPostType
+{	
+	/* CONSTRUCTOR */
+	public function __construct($taxName, $taxArgs = array(), $taxLabels = array())
+	{
+		/* Setup taxonomy variables */
+		$this -> taxName   = strtolower(str_replace(' ', '', $name));
+		$this -> taxArgs   = $taxArgs;
+		$this -> taxLabels = $taxLabels;
+		
+	}
+		
+	/* REGISTER TAXONOMY */
+	public function addTaxonomy()
+	{
+		
+	}
+		
+	/* CREATE CUSTOM META BOX - PASS BOOLEAN */
+	public function addMetaBox()
+	{
+		
+	}
+
+}
+
+/* CREATE CUSTOM POST TYPE */
+$astroJournal = new pm_createCustomPostType();
+
+/* CREATE TAXONOMIES */
+$equipment = new pm_createTaxonomy();	
+$objectType = new pm_createTaxonomy();
+$conditions = new pm_createTaxonomy();
+$locations = new pm_createTaxonomy();
+
+/* TAXONOMIES THAT NEED SPECIAL HANDLING */
+$constellation;
+$observationDateTime;
 
 
+
+
+
+?>
