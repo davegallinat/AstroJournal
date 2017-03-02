@@ -23,12 +23,12 @@ class pm_createCustomPostType
 		$this -> postTypeName   = strtolower(str_replace(' ', '', $name));
 		$this -> postTypeArgs   = $args;
 		$this -> postTypeLabels = $labels;
-		
+
 		/* Check if exists and add action*/
 		if (!post_type_exists($this->postTypeName))
 		{
-			add_action('init', array(&$this, 'registerPostType'));
-		}
+			add_action('init', array($this, 'registerPostType'));
+	}
 		
 		/* Listen for save */
 		$this -> saveMeta();
@@ -48,7 +48,7 @@ class pm_createCustomPostType
 			array(
 				'name'               => _x($pluralName, 'post type general name'),
 				'singular_name'      => _x($name, 'post type singular name'),
-				'add_new'            => _x('New ' . $name),
+				'add_new'            => __('New ' . $name),
 				'add_new_item'       => __('Add New ' . $name),
 				'edit_item'          => __('Edit ' . $name),
 				'new_item'           => __('New ' . $name),
@@ -92,7 +92,7 @@ class pm_createCustomPostType
 		);
 		
 		/* Add finally register the post type */
-		register_post_type('$this->postTypeName', $args);
+		register_post_type($this->postTypeName, $args);
 	}
 	
 	/* UPDATE POST META WHEN POST IS SAVED */
@@ -108,91 +108,83 @@ class pm_createCustomPostType
 	}
 }
 
-class pm_createTaxonomy extends pm_createCustomPostType
-{	
-	/* CONSTRUCTOR */
-	public function __construct($taxName, $taxArgs = array(), $taxLabels = array())
-	{
-
-		/* Get Post type name so we can attach the taxonomy */
-		$postTypeName = $this -> postTypeName;
+class pm_createTaxonomy
+{
+	protected $textdomain;
+	protected $taxonomies;
 	
-		/* Setup taxonomy variables */
-		$this -> taxName   = strtolower(str_replace(' ', '_', $taxName));
-		$this -> taxArgs   = $taxArgs;
-		$this -> taxLabels = $taxLabels;
-
-		add_action('init', array($this,'addTaxonomy'), 0);
-	}
-		
-	/* REGISTER TAXONOMY */
-	public function addTaxonomy()
+	public function __construct($textdomain)
 	{
-		$name   = ucwords(str_replace('_', ' ', $this -> taxName)); // Capitalize words & replace spaces
-		$pluralName = $name . 's'; //make a plural form
+		$this -> textdomain = $textdomain;
+		$this -> taxonomies = array();
 		
-		/* Setup default labels */
-		$labels = array_merge(
-			array(
-				'name'              => _x($pluralName, 'taxonomy general name'),
-				'singular_name'     => _x($name, 'taxonomy singular name'),
-				'search_items'      => __('Search ' . $pluralName),
-				'all_items'         => __('All ' . $pluralName),
-				'parent_item'       => __('Parent ' . $name),
-				'parent_item_colon' => __('Parent ' . $name),
-				'edit_item'         => __('Edit ' . $name),
-				'update_item'       => __('Update ' . $name),
-				'add_new_item'      => __('Add New ' . $name),
-				'new_item_name'     => __('New ' . $name),
-				'menu_name'         => __($pluralName),
-			),
-			/* Merge new labels */
-			$this -> taxLabels
+		add_action('init', array($this, 'registerTaxonomy'));
+	}
+	
+	public function makeTaxonomy($taxName, $singularName, $pluralName, $postTypes, $settings=array())
+	{
+		/* Cleanup slugs just in case */
+		$this -> taxName = strtolower(str_replace(' ', '_', $taxName));
+		$this -> postTypes = $postTypes;
+		
+		/* Default labels */
+		$default_labels = array(
+			'name'                       => __($pluralName, $this->textdomain),
+			'singular_name'              => __($singularName, $this->textdomain),
+			'search_items'               => __('Search ' . strtolower($pluralName), $this->textdomain),
+			'poular_items'               => __('Popular ' . strtolower($pluralName), $this->textdomain),
+			'choose_from_most_used'      => __('Choose from most used ' . strtolower($pluralName), $this->textdomain),
+			'all_items'                  => __('All ' . strtolower($pluralName), $this->textdomain),
+			'parent_item'                => __('Parent ' . $singularName, $this->textdomain),
+			'parent_item_colon'          => __('Parent ' . $singularName, $this->textdomain),
+			'edit_item'                  => __('Edit ' . $singularName, $this->textdomain),
+			'update_item'                => __('Update ' . $singularName, $this->textdomain),
+			'add_new_item'               => __('Add New ' . $singularName, $this->textdomain),
+			'new_item_name'              => __('New ' . $singularName, $this->textdomain),
+			'add_or_remove_items'        => __('Add or remove ' . strtolower($pluralName), $this->textdomain),
+			'menu_name'                  => __($pluralName, $this->textdomain),
+			'separate_items_with_commas' => __('Separate ' . strtolower($pluralName) . ' with commas', $this->textdomain)
 		);
 		
-		/* Setup default args */
-		$args   = array_merge(
-			array(
-				'hierarchical'      => true,
-				'label'             => $pluralName,
-				'labels'            => $labels,
-				'public'            => true,
-				'show_ui'           => true,
-				'show_in_nav_menus' => true,
-				'query_var'         => $pluralName,
-				'rewrite'           => array('slug' => $pluralName),
-			),
-			/* Merge new args */
-			$this -> taxArgs
+		$default_args = array(
+			'hierarchical'      => true,
+			'label'             => $pluralName,
+			'labels'            => $default_labels,
+			'public'            => true,
+			'show_admin_column' => true,
+			'show_ui'           => true,
+			'show_in_nav_menus' => true,
+			'rewrite'           => array('slug' => sanitize_title_with_dashes($pluralName)),
 		);
 		
-		/* Aaaannd, register the taxonomy */
-		register_taxonomy('$this -> taxName', '$this -> postTypeName', $args);
+		$this -> args = array_merge($default_args, $settings);
 	}
 		
-	/* CREATE CUSTOM META BOX - PASS BOOLEAN */
-	public function addMetaBox()
+	public function registerTaxonomy()
 	{
-		
+		register_taxonomy($this->taxName, $this->postTypes, $this->args);
 	}
-
+		
 }
 
 /* CREATE CUSTOM POST TYPE */
-$astroJournal = new pm_createCustomPostType('AstroJournal', 'Observation');
+$astroJournal = new pm_createCustomPostType('AstroJournal', 'astrojournal');
 
 /* CREATE TAXONOMIES */
-$equipment = new pm_createTaxonomy('Equipment');	
-//$objectType = new pm_createTaxonomy();
-//$conditions = new pm_createTaxonomy();
-//$locations = new pm_createTaxonomy();
+$equipment = new pm_createTaxonomy('astrojournal');
+$equipment -> makeTaxonomy('equipment', 'Equipment', 'Equipment', array('astrojournal', 'post'));
+
+$conditions = new pm_createTaxonomy('astrojournal');
+$conditions -> makeTaxonomy('condition', 'Condition', 'Conditions', array('astrojournal', 'post'));
+
+$locations = new pm_createTaxonomy('astrojournal');
+$locations -> makeTaxonomy('locations', 'Location', 'Locations', array('astrojournal', 'post'));
+
+$objectType = new pm_createTaxonomy('astrojournal');
+$objectType -> makeTaxonomy('objecttype', 'Object Type', 'Object Types', array('astrojournal', 'post'));
 
 /* TAXONOMIES THAT NEED SPECIAL HANDLING */
 //$constellation;
 //$observationDateTime;
-
-
-
-
 
 ?>
