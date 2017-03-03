@@ -1,0 +1,11 @@
+##CORE
+- 
+
+##FEATURES
+
+- Insert default/initial taxonomy terms into each taxonomy
+-- https://developer.wordpress.org/reference/functions/get_terms/
+-- http://wordpress.stackexchange.com/questions/7168/how-to-add-a-default-item-to-a-custom-taxonomy
+
+- Use google maps embed for location
+--(see gmaps: https://gist.github.com/ditikos/6ed2df6458462f252a38)
