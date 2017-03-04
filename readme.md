@@ -12,14 +12,15 @@ AstroJournal will keep track of
 - Object types
 - Constellations
 
-#####Environment
+####Environment
 Tested on:
-	- Wordpress 4.7.2
-	- PHP 5.4
-	- MySQL 5.5
+- Wordpress 4.7.2
+- PHP 5.4
+- MySQL 5.5
 
 #####Utilizes
 [jQuery](https://jquery.com) and [jQueryUI](https://jqueryui.com)
+
 [jQuery-Timepicker-Addon](https://github.com/trentrichardson/jQuery-Timepicker-Addon)
 Required files are already included, links are here for reference
 
