@@ -1,10 +1,28 @@
 #AstroJournal
 ###Astronomy Journal.
 
-Wordpress plugin for keeping an astronomical observation log.
+A Wordpress plugin for keeping an astronomical observation log.
 
-2/24/17 - First release 0.9
+####**Features**
+AstroJournal will keep track of 
+- Equipment
+- Locations
+- Observation date / time
+- Observing conditions logging
+- Object types
+- Constellations
 
-######**Utilizes**
-######[jQuery](https://jquery.com) and [jQueryUI](https://jqueryui.com)
-######[jQuery-Timepicker-Addon](https://github.com/trentrichardson/jQuery-Timepicker-Addon)
+#####Environment
+Tested on:
+	Wordpress 4.7.2
+	PHP 5.4
+	MySQL 5.5
+
+#####Utilizes
+[jQuery](https://jquery.com) and [jQueryUI](https://jqueryui.com)
+[jQuery-Timepicker-Addon](https://github.com/trentrichardson/jQuery-Timepicker-Addon)
+The libraries are included, links are here for reference
+
+#####**History**
+* 2/24/17 - First release 0.9
+
