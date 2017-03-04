@@ -2,7 +2,7 @@
 namespace astrojournal;
 
 /* class_createConstellationTaxonomy.php */
-/* This class create the custom constellation taxonomy and populates constellation data */
+/* This class creates the custom constellation taxonomy and populates constellation data */
 
 class createConstellationTaxonomy
 {
@@ -29,7 +29,7 @@ class createConstellationTaxonomy
 			'hierarchical'      => true,
 			'label'             => __($this -> pluralName),
 			'show_admin_column' => true,
-			'show_ui'           => true,
+			'show_ui'           => false,
 			'query_var'         => $taxName,
 			'rewrite'           => array('slug' => sanitize_title_with_dashes($taxName)),
 		);
@@ -74,7 +74,7 @@ class createConstellationTaxonomy
 	
 		/* Otherwise, go ahead and make the box */
 		add_meta_box(
-			$this->taxName.'metaboxdiv',
+			$this->taxName.'_metaboxdiv',
 			__($this->singularName),
 			array($this, 'buildConstellationMetaBox'),
 			$this->postTypes,

@@ -15,8 +15,8 @@ class pm_createCustomPostType
 		/* Initialize textdomain for use later */
 		$this -> textdomain = $textdomain;
 		
-		/* Add the WP hook */
-		add_action('init', array($this, 'registerCustomPostType'));
+		/* Add the WP hook, set priority to 10 so fires before rewrite flag */
+		add_action('init', array($this, 'registerCustomPostType'), 10);
 	}
 	
 	/* Build post type settings */

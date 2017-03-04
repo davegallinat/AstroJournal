@@ -4,6 +4,7 @@ namespace astrojournal;
 /* class_pm_createTaxonomy.php */
 
 /* CLASS FOR CREATING THE TAXONOMIES */
+
 class pm_createTaxonomy
 {
 	protected $textdomain;
