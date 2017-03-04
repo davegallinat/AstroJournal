@@ -24,5 +24,10 @@ Tested on:
 The libraries are included, links are here for reference
 
 #####**History**
-* 2/24/17 - First release 0.9
+2/24/17 - First release 0.9
+- Basic funtionality
 
+3/04/17 - Release 1.0
+- OOP design
+- Metadata improvements
+- added jQuery picker
