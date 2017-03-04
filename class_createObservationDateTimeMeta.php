@@ -108,7 +108,7 @@ class createObservationDateTimeMeta
 	{
 		wp_enqueue_script(
 			'timepicker',
-			plugins_url('/helpers/jquery-ui-timepicker-addon.js', __FILE__),
+			plugins_url('/js/jquery-ui-timepicker-addon.js', __FILE__),
 			array('jquery', 'jquery-ui-core', 'jquery-ui-datepicker'),
 			false,
 			true
@@ -129,7 +129,7 @@ class createObservationDateTimeMeta
 		
 		wp_enqueue_style(
 			'timepicker-css',
-			plugins_url('/helpers/jquery-ui-timepicker-addon.css', __FILE__)
+			plugins_url('/js/jquery-ui-timepicker-addon.css', __FILE__)
 		);
 			
 			

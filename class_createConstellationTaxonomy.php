@@ -29,7 +29,7 @@ class createConstellationTaxonomy
 			'hierarchical'      => true,
 			'label'             => __($this -> pluralName),
 			'show_admin_column' => true,
-			'show_ui'           => false,
+			'show_ui'           => true,
 			'query_var'         => $taxName,
 			'rewrite'           => array('slug' => sanitize_title_with_dashes($taxName)),
 		);

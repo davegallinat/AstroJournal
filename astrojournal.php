@@ -34,17 +34,11 @@ $show_astrojournal_on_frontpage = true;
 /***********
 * INCLUDES *
 ************/
-//require 'class_pm_createCustomPostType.php';
-//include 'class_pm_createTaxonomy.php';
-//include 'class_createConstellationTaxonomy.php';
-//include 'class_createObservationDateTimeMeta.php';
-//include 'class_lib.php';
-
-require plugins_url('/classes/class_pm_createCustomPostType.php', __FILE__);
-include plugins_url('/classes/class_pm_createTaxonomy.php', __FILE__);
-include plugins_url('/classes/class_createConstellationTaxonomy.php', __FILE__);
-include plugins_url('/classes/class_createObservationDateTimeMeta.php', __FILE__);
-include plugins_url('/classes/class_lib.php', __FILE__);
+require 'class_pm_createCustomPostType.php';
+include 'class_pm_createTaxonomy.php';
+include 'class_createConstellationTaxonomy.php';
+include 'class_createObservationDateTimeMeta.php';
+include 'class_lib.php';
 
 /********************************
 * CREATE ASTROJOURNAL POST TYPE *
