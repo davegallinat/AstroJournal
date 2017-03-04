@@ -14,14 +14,14 @@ AstroJournal will keep track of
 
 #####Environment
 Tested on:
-	Wordpress 4.7.2
-	PHP 5.4
-	MySQL 5.5
+	- Wordpress 4.7.2
+	- PHP 5.4
+	- MySQL 5.5
 
 #####Utilizes
 [jQuery](https://jquery.com) and [jQueryUI](https://jqueryui.com)
 [jQuery-Timepicker-Addon](https://github.com/trentrichardson/jQuery-Timepicker-Addon)
-The libraries are included, links are here for reference
+Required files are already included, links are here for reference
 
 #####**History**
 2/24/17 - First release 0.9
