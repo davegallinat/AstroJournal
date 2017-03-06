@@ -52,6 +52,12 @@ class astrojournal_on_frontpage
 	}
 }
 
+
+/**********************************************************
+* This class modifies the "All Observations" screen to    *
+* include custom columns and make them sortable by        *
+* observation date.                                       *
+***********************************************************/
 class pm_customAdminColumns
 {
 	public function __construct()
