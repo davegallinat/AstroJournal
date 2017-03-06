@@ -22,7 +22,6 @@ class createObservationDateTimeMeta
 		add_action('admin_enqueue_scripts', array($this, 'enqueueDatetimePicker'));
 		add_action('add_meta_boxes', array($this, 'addDateTimeMetaBox'));
 		add_action('save_post', array($this, 'saveDateTime'));
-		
 	}
 	
 	/* register metabox */
@@ -124,7 +123,7 @@ class createObservationDateTimeMeta
 		
 		wp_enqueue_style(
 			'jquery-ui-css',
-			'http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css'
+			plugins_url('/js/jquery-ui.css', __FILE__)
 		);
 		
 		wp_enqueue_style(
