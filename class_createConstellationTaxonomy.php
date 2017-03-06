@@ -27,7 +27,8 @@ class createConstellationTaxonomy
 		/* Default args */
 		$default_args = array(
 			'hierarchical'      => true,
-			'label'             => __($this -> pluralName),
+			'label'             => __($this -> singularName),
+			'public'            => true,
 			'show_admin_column' => true,
 			'show_ui'           => false,
 			'query_var'         => $taxName,

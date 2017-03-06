@@ -28,7 +28,7 @@ class pm_createTaxonomy
 		
 		/* Default labels */
 		$default_labels = array(
-			'name'                       => __($pluralName, $this->textdomain),
+			'name'                       => __($singularName, $this->textdomain),
 			'singular_name'              => __($singularName, $this->textdomain),
 			'search_items'               => __('Search ' . strtolower($pluralName), $this->textdomain),
 			'popular_items'               => __('Popular ' . strtolower($pluralName), $this->textdomain),
@@ -51,7 +51,7 @@ class pm_createTaxonomy
 		/* Default args */
 		$default_args = array(
 			'hierarchical'      => true,
-			'label'             => $pluralName,
+			'label'             => $singularName,
 			'labels'            => $this -> labels,
 			'public'            => true,
 			'show_admin_column' => true,

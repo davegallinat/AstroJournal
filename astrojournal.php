@@ -17,10 +17,14 @@ Author URI: https://github.com/plaidmelon
 * USER SETTINGS *
 *****************/
 
-// Set to true to include on frontpage along with other posts
+// Set to true / false to include on frontpage along with other posts (default: true).
+// Note: Your theme could override this, if it does I can't help you - sorry.
 $show_astrojournal_on_frontpage = true;
 
-// Other options
+// Other options - NOT FINISHED
+//include in archives?
+//show by shortcode?
+//
 
 
 
@@ -138,6 +142,7 @@ $aj_flush_permalinks = new aj_flush_permalinks();
 ****************************/
 //Show on frontpage
 $astrojournal_on_frontpage = new astrojournal_on_frontpage($show_astrojournal_on_frontpage);
+$customAdminColumns = new pm_customAdminColumns();
 
 
 /************************
