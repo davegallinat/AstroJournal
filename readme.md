@@ -33,7 +33,7 @@ Tested on:
 
 Required files are already included, links are here for reference.
 
-** History**
+#### History
 2/24/17 - First release 0.9
 - Basic funtionality
 
