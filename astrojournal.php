@@ -17,10 +17,13 @@ Author URI: https://github.com/plaidmelon
 * USER SETTINGS *
 *****************/
 
-// Set to true to include on frontpage along with other posts
+// Set to true / false to include on frontpage along with other posts (default: true)
 $show_astrojournal_on_frontpage = true;
 
-// Other options
+// Other options - NOT FINISHED
+//include in archives?
+//show by shortcode?
+//
 
 
 
