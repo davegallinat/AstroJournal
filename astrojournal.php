@@ -6,7 +6,7 @@ namespace astrojournal;
 */
 /*
 Plugin Name: AstroJournal
-Plugin URI: https://github.com/plaidmelon/AstroJournal
+Plugin URI: https://plaidmelon.github.io/AstroJournal/
 Description: Wordpress plugin for keeping an astronomy observation journal.
 Version: 1.0
 Author: David Gallinat
@@ -18,8 +18,7 @@ Author URI: https://github.com/plaidmelon
 *****************/
 
 // Set to true / false to include on frontpage along with other posts (default: true).
-// Note: Your theme could override this, if it does I can't help you - sorry.
->>>>>>> develop
+// Note: Your theme could override this.
 $show_astrojournal_on_frontpage = true;
 
 // Other options - NOT FINISHED
@@ -43,6 +42,7 @@ require 'class_pm_createCustomPostType.php';
 include 'class_pm_createTaxonomy.php';
 include 'class_createConstellationTaxonomy.php';
 include 'class_createObservationDateTimeMeta.php';
+include 'class_astroJournalSettings.php';
 include 'class_lib.php';
 
 /********************************
@@ -143,6 +143,11 @@ $aj_flush_permalinks = new aj_flush_permalinks();
 ****************************/
 //Show on frontpage
 $astrojournal_on_frontpage = new astrojournal_on_frontpage($show_astrojournal_on_frontpage);
+
+// Settings admin
+$astroJournalSettings = new astroJournalSettings();
+
+// Create custom admin columns
 $customAdminColumns = new pm_customAdminColumns();
 
 
