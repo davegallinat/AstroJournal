@@ -15,8 +15,7 @@ AstroJournal will keep track of:
 ### Installation
 1. Download, unzip, add _astrojournal_ folder to Wordpress _plugins_ folder
 2. Activate under *Plugins*
-3. At the top of astrojournal.php is the settings:
--- $show_astrojournal_on_frontpage = true
+
 
 AstroJournal should automagically refresh the permalinks, but if you get a 404 message when trying to display your AstroJournal posts you can refresh them manually by going to *Settings->Permalinks* and just clicking _save_. If that doesn't work please [post an issue](https://github.com/plaidmelon/AstroJournal/issues) on GitHub.
 

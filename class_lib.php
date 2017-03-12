@@ -60,3 +60,48 @@ class pm_customAdminColumns
 		}
 	}
 }
+
+
+/**************************************************************
+* This creates the AstroJournal shortcode - [aj_observations] *
+***************************************************************/
+class aj_shortcode
+{
+	public function __construct()
+	{
+		add_shortcode('aj_observations', array($this, 'build_aj_shortcode'));
+	}
+	
+	public function build_aj_shortcode($atts)
+	{
+		
+		$new_atts = shortcode_atts(array(
+			'post_type'   => 'astrojournal',
+			'post_status' => 'publish',
+			'display'     => 'list'
+			
+		), $atts);
+		
+		
+		// global namespace \WP_Query
+		$query = new \WP_Query($new_atts);
+		$string = '';
+		
+		if ($query -> have_posts())
+		{
+			$string .= '<ul>';
+			while ($query -> have_posts())
+			{
+				$query -> the_post();
+				$string .= '<li><a href="'.get_the_permalink().'">' . get_the_title() . '</a></li>';
+			}
+			$string .= '</ul>';
+		}
+		
+		// reset to be nice, cuz we used a second loop
+		wp_reset_postdata();
+		
+		return $string;
+	}
+	
+}
