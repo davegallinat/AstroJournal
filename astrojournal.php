@@ -58,7 +58,7 @@ $equipment = new pm_createTaxonomy('astrojournal');
 $equipment -> buildTaxonomy('equipment', 'Equipment', 'Equipment', array('astrojournal'), array(), array());
 
 $conditions = new pm_createTaxonomy('astrojournal');
-$conditions -> buildTaxonomy('condition', 'Condition', 'Conditions', array('astrojournal'), array(), array());
+$conditions -> buildTaxonomy('condition', 'Conditions', 'Conditions', array('astrojournal'), array(), array());
 
 $locations = new pm_createTaxonomy('astrojournal');
 $locations -> buildTaxonomy('location', 'Location', 'Locations', array('astrojournal'), array(), array());

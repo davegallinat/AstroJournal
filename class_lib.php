@@ -81,7 +81,8 @@ class aj_shortcode
 			'post_type'      => 'astrojournal',
 			'p'              => '',			// post ID
 			'posts_per_page' => '-1',
-			'show'           => 'list',		// just titles or with excerpts, or full content
+			'show'           => 'title',	// just title or excerpt, or full content
+			'show_meta'      => 'true',
 			'orderby'        => 'post_date',
 			'order'          => 'DESC'
 		), $atts);
@@ -96,15 +97,68 @@ class aj_shortcode
 		{
 			while ($query -> have_posts())
 			{
+				// gather all the data
 				$query -> the_post();
-				$post_class = join(' ', get_post_class());
+				$post_class = join(' ', get_post_class()); // WP generated post classes
+				
+				
+				// build the string to pass back
 				
 				// twenty seventeen breaks "entry-header" on large screen pages, commenting out for now
 				$string .= '<article id="post-'.get_the_ID().'" class="'.$post_class.'">';
-				//$string .= '<header class="entry-header">';
+				$string .= '<header class="entry-header">';
 				$string .= '<h2 class="entry-title"><a href="'.get_the_permalink().'">'.get_the_title().'</a></h2>';
-				$string .= '<div class="entry-meta">meta</div>';
-				//$string .= '</header>';
+				
+				if ($new_atts['show_meta'] == 'true')
+				{
+					$string .= '<div class="entry-meta astrojournal-meta">';
+					$string .= '<dl>';
+					
+					$ob__date_meta = get_post_meta(get_the_ID(), 'obDateTime', true); // observation date & time
+					$string .= '<dt>Observed</dt><dd>'. date('M d, Y', $ob__date_meta) . ' at ' . date('h:ia', $ob__date_meta) . '</dd>';
+				
+					/* gather the taxonomies */
+					foreach (get_object_taxonomies('astrojournal') as $tax_name)
+					{
+						$args = array(
+							'name' => $tax_name
+						);
+						$output = 'objects';
+						$taxonomies = get_taxonomies($args, $output);
+					
+						if ($taxonomies)
+						{
+							foreach ($taxonomies as $taxonomy)
+							{
+								$label = $taxonomy -> label;
+								$string .= '<dt>' . $label . '</dt>';
+							}
+						}
+					
+		   				$terms = get_the_terms(get_the_ID(), $tax_name);
+   			
+		   				if ( $terms ) {
+		   				 	foreach ( $terms as $term ) {
+		   				 		if ($parent = get_term_by('id', $term->parent, $tax_name)) {
+		   				 			$term_name = $parent->name . ': ' . $term->name;
+									$string .= '<dd title="'. $term->description .'">' . $term_name . '</dd>';
+		   			 			}
+   			 		
+		   			 			else {
+		   			 				$term_name = $term->name;
+									$string .= '<dd title="'. $term->description .'">'. $term_name . '</dd>';
+		   			 			}
+		   			 		}
+		   				}
+					}
+					$string .= '</dl>';
+					/* end getting taxonomies */
+				
+					$string .= '</div> <!-- end meta -->';
+				}
+				
+				
+				$string .= '</header>';
 				
 				// show the excerpt if show => 'excerpt', default is 'list' of titles
 				if ($new_atts['show'] == 'excerpt')
@@ -113,7 +167,7 @@ class aj_shortcode
 				}
 				
 				// show the full content if show => 'content', default is 'list' of titles
-				if ($new_atts['show'] == 'content')
+				if ($new_atts['show'] == 'full')
 				{
 					$string .= '<div class="entry-content">'.get_the_content().'</div>';
 				}
