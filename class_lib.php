@@ -70,7 +70,7 @@ class aj_shortcode
 {
 	public function __construct()
 	{
-		add_shortcode('aj_observations', array($this, 'build_aj_shortcode'));
+		add_shortcode('astrojournal', array($this, 'build_aj_shortcode'));
 		add_action('add_meta_boxes', array($this, 'add_aj_shortcode_metabox'));
 	}
 	
@@ -104,7 +104,33 @@ class aj_shortcode
 				
 				// build the string to pass back
 				
-				// twenty seventeen breaks "entry-header" on large screen pages, commenting out for now
+				$string .= '<style>
+								#post-'.get_the_ID().'
+								{
+									//columns: 300px 2;
+								}
+								
+								#post-'.get_the_ID().' img
+								{
+									float: right;
+									margin-left: 10px;
+								}
+								
+								.astrojournal-meta
+								{
+									float: left;
+									//min-width: 100px;
+									width: 25%;
+								}
+								
+								.entry-content
+								{
+									//width: 75%;
+								}
+							</style>';
+				
+				
+				
 				$string .= '<article id="post-'.get_the_ID().'" class="'.$post_class.'">';
 				$string .= '<header class="entry-header">';
 				$string .= '<h2 class="entry-title"><a href="'.get_the_permalink().'">'.get_the_title().'</a></h2>';
@@ -166,10 +192,19 @@ class aj_shortcode
 					$string .= '<div class="entry-content">'.get_the_excerpt().'</div>';
 				}
 				
-				// show the full content if show => 'content', default is 'list' of titles
+				// show the full content if show => 'full', default is 'list' of titles
 				if ($new_atts['show'] == 'full')
 				{
-					$string .= '<div class="entry-content">'.get_the_content().'</div>';
+					$string .= '<div class="entry-content">';
+					
+					if ( has_post_thumbnail() ) {
+					    $large_image_url = wp_get_attachment_image_src( get_post_thumbnail_id(), 'large' );
+					    if ( ! empty( $large_image_url[0] ) ) {
+					        $string .= '<a href="' . esc_url( $large_image_url[0] ) . '" title="' . the_title_attribute( array( 'echo' => 0 ) ) . '">' . get_the_post_thumbnail($postID, 'thumbnail' ) . '</a>';
+					    }
+					}
+					
+					$string .= get_the_content().'</div>';
 				}
 				
 				$string .= '</article>';
