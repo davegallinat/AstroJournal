@@ -31,7 +31,7 @@ class pm_createTaxonomy
 			'name'                       => __($singularName, $this->textdomain),
 			'singular_name'              => __($singularName, $this->textdomain),
 			'search_items'               => __('Search ' . strtolower($pluralName), $this->textdomain),
-			'popular_items'               => __('Popular ' . strtolower($pluralName), $this->textdomain),
+			'popular_items'              => __('Popular ' . strtolower($pluralName), $this->textdomain),
 			'choose_from_most_used'      => __('Choose from most used ' . strtolower($pluralName), $this->textdomain),
 			'all_items'                  => __('All ' . strtolower($pluralName), $this->textdomain),
 			'parent_item'                => __('Parent ' . $singularName, $this->textdomain),

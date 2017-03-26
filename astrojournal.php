@@ -17,12 +17,9 @@ Author URI: https://github.com/plaidmelon
 * USER SETTINGS *
 *****************/
 
-// Set to true / false to include on frontpage along with other posts (default: true).
-// Note: Your theme could override this.
-$show_astrojournal_on_frontpage = true;
+
 
 // Other options - NOT FINISHED
-//include in archives?
 //show by shortcode?
 //
 
@@ -61,7 +58,7 @@ $equipment = new pm_createTaxonomy('astrojournal');
 $equipment -> buildTaxonomy('equipment', 'Equipment', 'Equipment', array('astrojournal'), array(), array());
 
 $conditions = new pm_createTaxonomy('astrojournal');
-$conditions -> buildTaxonomy('condition', 'Condition', 'Conditions', array('astrojournal'), array(), array());
+$conditions -> buildTaxonomy('condition', 'Conditions', 'Conditions', array('astrojournal'), array(), array());
 
 $locations = new pm_createTaxonomy('astrojournal');
 $locations -> buildTaxonomy('location', 'Location', 'Locations', array('astrojournal'), array(), array());
@@ -141,14 +138,23 @@ $aj_flush_permalinks = new aj_flush_permalinks();
 /***************************
 * GENERAL SETTINGS & CALLS *
 ****************************/
-//Show on frontpage
-$astrojournal_on_frontpage = new astrojournal_on_frontpage($show_astrojournal_on_frontpage);
+// Show on frontpage
+$astrojournal_on_frontpage = new astrojournal_on_frontpage();
+
+// Include in Recent Posts widget
+$astrojournal_in_recent = new astrojournal_in_recent();
+
+// Include in archives
+$astrojournal_include_in_archives = new astrojournal_include_in_archives();
 
 // Settings admin
 $astroJournalSettings = new astroJournalSettings();
 
 // Create custom admin columns
 $customAdminColumns = new pm_customAdminColumns();
+
+// Create shortcode
+$aj_shortcode = new aj_shortcode();
 
 
 /************************
