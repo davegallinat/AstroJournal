@@ -17,14 +17,7 @@ Author URI: https://github.com/plaidmelon
 * USER SETTINGS *
 *****************/
 
-
-
-// Other options - NOT FINISHED
-//show by shortcode?
-//
-
-
-
+/* Settings page added to menu - this section is no longer needed */
 
 /********************************************************************************/
 /*							DO NOT EDIT BELOW THIS LINE							*/
